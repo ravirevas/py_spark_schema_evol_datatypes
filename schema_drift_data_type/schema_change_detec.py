@@ -11,7 +11,7 @@ spark = SparkSession.builder \
     .config("spark.sql.hive.convertMetastoreParquet","false") \
     .enableHiveSupport() \
     .getOrCreate()
-
+spark.sql("describe formatted sparktable3").show(1000,False)
 #spark.sql("set -v").show(1000,False)
 #spark.sql("ALTER TABLE sparktable3 REPLACE COLUMNS (id  double) CASCADE")
 spark.sql("describe departments").show()
@@ -68,26 +68,27 @@ if(data_type_changed_rdd.count() != 0) :
   alter_data_type=data_type_changed_rdd.collect()
 
 
-  alter_data_type=[('id', ('char(20)', 'char(30)')), ('product_id', ('varchar(20)', 'int'))]
+  alter_data_type=[('id', ('decimal(10,4)', 'decimal(30,3)')), ('product_id', ('varchar(20)', 'char(30)'))]
 
   print(alter_data_type)
   for i in alter_data_type:
-      print("\ntrying to convert {} {}\n".format(i[1][0], i[1][1]))
+      print("\n##################CONVERTING '{}'TO'{}'######################\n".format(i[1][0], i[1][1]))
       alter_status = data_type_convt_check(i[1])
       if (alter_status is '0'):
+       print("valid alter")
        col=i[0]+" "+i[0]+" "+i[1][1]
        hive_alter_cmd="hive -e 'ALTER TABLE {} change ".format(hive_table_name) +col+"'"
        print(hive_alter_cmd)
        #subprocess.call(stmt, shell=True)
 
       elif(alter_status is '1'):
-          print("Unvalid Alter....your dict doest not support this kind of alter")
+          print("...Invalid Alter....'{}' is there but the '{}' is not the in the parquet dict value".format(i[1][0],i[1][1]))
 
       elif(alter_status is '2'):
-          print("Unvalid...key is not prsent new datatype ")
+          print("...Invalid...'{}' is not present in the parquet dictionary".format(i[1][0]))
 
       elif(alter_status is '3'):
-          print("Unvalid.....you are decrease the size of old datatype cannot be suuported")
+          print("....Invalid.....'{}' to '{}' is not permitted your decreasing the size".format(i[1][0],i[1][1]))
 
       else:
-          print("alternate return code...something went wrong")
+          print("return code unknown...something went wrong")

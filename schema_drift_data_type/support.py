@@ -8,11 +8,15 @@ parquet_types = \
         'tinyint': ['smallint', 'int', 'bigint'],
         'smallint': ['int', 'bigint'],
         'int': ['bigint', 'float'],
-        'float': ['double', 'decimal'],
+        'float': ['double'],
         'varchar': ['varchar', 'string'],
-        'char': ['char', 'varchar', 'string']
+        'char': ['char', 'varchar', 'string'],
+        'decimal':['decimal']
     }
 
+#double to decimal X
+#decimal(5,2) to decimal(6,3)
+#float to decimal X
 
 def data_type_convt_check(data_type_changes):
     # check if datatype is present in dict key or not
@@ -37,7 +41,7 @@ def data_type_convt_check(data_type_changes):
     elif (hasNumbers(data_type_changes[0]) is True and hasNumbers(data_type_changes[1]) is True):
 
         # looking for varchar in dict key
-        if (alphabetsOnly(data_type_changes[0] in parquet_types)):
+        if (alphabetsOnly(data_type_changes[0]) in parquet_types):
 
             print("\n..........key is present in dict........... case2\n")
 
@@ -46,15 +50,19 @@ def data_type_convt_check(data_type_changes):
 
                 # if varchar(20) is > than varchar(10)
                 if (int(getNumbers(data_type_changes[1])) > int(getNumbers(data_type_changes[0]))):
+                    print("hi")
                     return "0"
 
                 else:
-                    return "1"
+                    return "3"
             else:
-                return "3"
+                return "1"
+        else:
+            return "2"
 
     # for case like varchar(20) to string
     elif (hasNumbers(data_type_changes[0]) is True and hasNumbers(data_type_changes[1]) is False):
+
         if (alphabetsOnly(data_type_changes[0] in parquet_types)):
 
             print("key is present in dict case3\n")
@@ -64,7 +72,8 @@ def data_type_convt_check(data_type_changes):
 
             else:
                 return "1"
-
+        else:
+            return "2"
 
     else:
         print(".............key not found..........\n")
@@ -81,6 +90,19 @@ def hasNumbers(inputString):
 def getNumbers(inputString):
     # fn to return number from varchar(30) i.e (30)
     return re.search(r'\d+', inputString).group(0)
+
+
+
+# Function to extract all the numbers from the given string
+def getNumbers(str):
+    array = re.findall(r'[0-9]+', str)
+    return array
+
+# Driver code
+str = "varchar(23,23)"
+array = getNumbers(str)
+print(type(array))
+print(len(array))
 
 
 def alphabetsOnly(input):
